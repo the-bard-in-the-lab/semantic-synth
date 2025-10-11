@@ -1,0 +1,19 @@
+corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data.txt"
+vector_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/vectors.txt"
+weights_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/model_weights.weights.h5"
+audio_settings:
+  sample_rate: 44100
+adsr_minimum:
+  sustain: 0.2
+  release: 0.01
+adsr_maximum:
+  attack: 1
+  decay: 1
+  sustain: 1 # Should never be higher than 1
+  release: 3
+lfo_maximum:
+  freq: 20
+  depth: 5
+adsr_skew_factor: 2.5
+lfo_skew_factor: 10
+osc_skew_factor: 2

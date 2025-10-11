@@ -1,2 +1,3 @@
 corpus_data.txt
 *.weights.h5*
+.DS_Store

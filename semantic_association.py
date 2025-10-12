@@ -29,12 +29,12 @@ def get_vector_data():
 
         return words, vectors
 
-def create_model(input_dim: int=50, output_dim: int=19):
+def create_model(input_dim: int=100, output_dim: int=14):
     model = tf.keras.models.Sequential([
         tf.keras.layers.Input(shape=(input_dim,)),
         tf.keras.layers.Dense(50, activation='relu'),
         tf.keras.layers.Dense(25, activation='relu'),
-        tf.keras.layers.Dropout(0.3),
+        tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(output_dim)
     ])
     return model
@@ -47,19 +47,31 @@ def load_training_data(vwords, vvectors):
         for line in range(len(lines)):
             line_split = lines[line].split("|")
             synth = json.loads(line_split[0])
-            synth_arr = np.zeros([19,])
+            #synth_arr = np.zeros([19,])
+            synth_arr = np.zeros([14,])
 
             # Assign parameter values:
-            synth_arr[type_dict[synth["osc_1"]]] = 1
-            synth_arr[4] = synth["osc_1_sqpct"]
-            synth_arr[type_dict[synth["osc_2"]] + 5] = 1
-            synth_arr[9] = synth["osc_2_sqpct"]
-            synth_arr[10] = synth["mix_pct"]
-            synth_arr[11:15] = synth["adsr"][0:4]
-            synth_arr[15] = synth["lfo_1_freq"]
-            synth_arr[16] = synth["lfo_1_depth"]
-            synth_arr[17] = synth["lfo_2_freq"]
-            synth_arr[18] = synth["lfo_2_depth"]
+            # synth_arr[type_dict[synth["osc_1"]]] = 1
+            # synth_arr[4] = synth["osc_1_sqpct"]
+            # synth_arr[type_dict[synth["osc_2"]] + 5] = 1
+            # synth_arr[9] = synth["osc_2_sqpct"]
+            # synth_arr[10] = synth["mix_pct"]
+            # synth_arr[11:15] = synth["adsr"][0:4]
+            # synth_arr[15] = synth["lfo_1_freq"]
+            # synth_arr[16] = synth["lfo_1_depth"]
+            # synth_arr[17] = synth["lfo_2_freq"]
+            # synth_arr[18] = synth["lfo_2_depth"]
+
+            synth_arr[0] = synth["osc_1_mix"]
+            synth_arr[1] = synth["osc_2_mix"]
+            synth_arr[2] = synth["osc_3_mix"]
+            synth_arr[3] = synth["osc_4_mix"]
+            synth_arr[4] = synth["osc_2_sqpct"]
+            synth_arr[5:9] = synth["adsr"][0:4]
+            synth_arr[10] = synth["lfo_1_freq"]
+            synth_arr[11] = synth["lfo_1_depth"]
+            synth_arr[12] = synth["lfo_2_freq"]
+            synth_arr[13] = synth["lfo_2_depth"]
 
             my_words = re.split(r"[,.;\s]", line_split[1].strip())
             my_words = [x for x in my_words if x != ""]
@@ -97,9 +109,10 @@ def main():
         model.load_weights(config["weights_file_path"])
 
     training_data, training_labels = load_training_data(words, vectors)
-    model.fit(training_data, training_labels, epochs=3)
+    model.fit(training_data, training_labels, epochs=15)
 
     model.save_weights(config["weights_file_path"])
+    model.save(config["model_file_path"])
 
 
     

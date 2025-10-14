@@ -30,18 +30,7 @@ def main():
     # my_sound = fm_synthesis(220, my_modulator, WaveType.SQUARE)
     # sd.play(my_sound, config["audio_settings"]["sample_rate"], [2])
     # sd.wait()
-
-    # my_sound = sine(3, 3)
-    # fm_sound = fm_synthesis(220, my_sound)
-    # sd.play(fm_sound, config["audio_settings"]["sample_rate"])
-    # sd.wait() 
-
-    # my_synth = synth.synth(synth.WaveType.SAW, 0.1, synth.WaveType.SINE, 0.5,
-    #                  mix_pct=0.9,
-    #                  adsr=[0.1, 0.1, 0.5, 2],
-    #                  lfo_1=[2, 0],
-    #                  lfo_2=[10, 0])
-
+    
     my_synth = synth.synth(1, 0, 0.5, 0, 0,
                             adsr=[0.1, 0.1, 0.5, 2],
                             lfo_1=[2, 0],

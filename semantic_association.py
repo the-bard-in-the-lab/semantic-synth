@@ -4,42 +4,26 @@ import tensorflow as tf
 import os
 import json
 import re
+from vector.vmath import get_vector_data
+from vector.vmath import get_k_nearest_neighbors
 
 
 config = yaml.safe_load(open("config.yaml"))
+k = config["k"]
 
 type_dict = {"SINE":0, "SQUARE":1, "SAW":2, "NOISE":3}
 
-def get_vector_data():
-    with open(config["vector_file_path"], 'r') as file:
-        lines = file.readlines()
-        vectors = np.empty([len(lines), len(lines[0].split()) - 1])
-        words = []
-        for line in range(len(lines)):#range(10):
-            thisline = lines[line].split()
-            word = thisline[0]
-            words.append(word)
-            #print(word)
-            del thisline[0]
-            thisline = [float(i) for i in thisline]
-            vector = np.array(thisline)
-            #print(vector)
-            #words = np.append(words, word)
-            vectors[line] = vector            
-
-        return words, vectors
-
-def create_model(input_dim: int=100, output_dim: int=14):
+def create_model(input_dim: int=50, output_dim: int=14):
     model = tf.keras.models.Sequential([
         tf.keras.layers.Input(shape=(input_dim,)),
-        tf.keras.layers.Dense(50, activation='relu'),
-        tf.keras.layers.Dense(25, activation='relu'),
-        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(20, activation='relu'),
+        tf.keras.layers.Dense(20, activation='relu'),
+        tf.keras.layers.Dropout(0.05),
         tf.keras.layers.Dense(output_dim)
     ])
     return model
 
-def load_training_data(vwords, vvectors):
+def load_training_data(vwords : np.array, vvectors : np.array):
     with open(config["corpus_file_path"], 'r') as file:
         lines = file.readlines()
         synths = []
@@ -75,13 +59,27 @@ def load_training_data(vwords, vvectors):
 
             my_words = re.split(r"[,.;\s]", line_split[1].strip())
             my_words = [x for x in my_words if x != ""]
+            #vlist = vvectors.tolist()
             #print(my_words)
             for word in my_words:
                 try:
                     ind = vwords.index(word)
-                    print(ind)
-                    words.append(vvectors[ind])
-                    synths.append(synth_arr)
+                    #print(ind)
+                    
+                    #words.append(vvectors[ind])
+                    #synths.append(synth_arr)
+                    
+                    # DATASET AUGMENTATION:
+                    # We find the k nearest words in the dataset and
+                    # add them to the training data
+                    # Note that k includes the word itself
+                    neighbors = get_k_nearest_neighbors(vvectors[ind], vvectors, k)
+                    #print("- - - - -")
+                    for wordvector in neighbors:
+                        words.append(wordvector)
+                        synths.append(synth_arr)
+                        #print(vwords[vlist.index(wordvector.tolist())])
+
                 except:
                     print(f"Word {word} not found in vector corpus; skipping . . .")
         print("LENGTHS")
@@ -94,7 +92,7 @@ def load_training_data(vwords, vvectors):
 
 def main():
     words, vectors = get_vector_data()
-    print(words)
+    #print(words)
     print(vectors)
 
 

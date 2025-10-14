@@ -4,6 +4,7 @@ import yaml
 import tensorflow as tf
 import synthesizer.synthesizer_4osc as synth
 import os
+from vector.vmath import get_vector_data
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]
@@ -37,34 +38,15 @@ notes = np.array([[60, .8],
 #     ])
 #     return model
 
-def create_model(input_dim: int=100, output_dim: int=14):
+def create_model(input_dim: int=50, output_dim: int=14):
     model = tf.keras.models.Sequential([
         tf.keras.layers.Input(shape=(input_dim,)),
-        tf.keras.layers.Dense(50, activation='relu'),
-        tf.keras.layers.Dense(25, activation='relu'),
-        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(20, activation='relu'),
+        tf.keras.layers.Dense(20, activation='relu'),
+        tf.keras.layers.Dropout(0.05),
         tf.keras.layers.Dense(output_dim)
     ])
     return model
-
-def get_vector_data():
-    with open(config["vector_file_path"], 'r') as file:
-        lines = file.readlines()
-        vectors = np.empty([len(lines), len(lines[0].split()) - 1])
-        words = []
-        for line in range(len(lines)):#range(10):
-            thisline = lines[line].split()
-            word = thisline[0]
-            words.append(word)
-            #print(word)
-            del thisline[0]
-            thisline = [float(i) for i in thisline]
-            vector = np.array(thisline)
-            #print(vector)
-            #words = np.append(words, word)
-            vectors[line] = vector            
-
-        return words, vectors
 
 def main():
     # my_synth = synth.synth(synth.WaveType.SAW, 0.1, synth.WaveType.SINE, 0.5,

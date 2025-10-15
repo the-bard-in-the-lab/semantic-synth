@@ -5,28 +5,11 @@ import tensorflow as tf
 import synthesizer.synthesizer_4osc as synth
 import os
 from vector.vmath import get_vector_data
+import melodies
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]
 filepath = config["corpus_file_path"]
-
-notes = np.array([[60, .8],
-                  [67, .8],
-                  [65, .2],
-                  [64, .2],
-                  [62, .2],
-                  [64, .2],
-                  [60, .8],
-                  [55, 1.6],
-                  [57, .8],
-                  [69, .8],
-                  [67, .2],
-                  [66, .2],
-                  [64, .2],
-                  [66, .2],
-                  [62, .8],
-                  [71, 1.6],
-                  ])
 
 # def create_model(input_dim: int=50, output_dim: int=19):
 #     model = tf.keras.models.Sequential([
@@ -38,16 +21,6 @@ notes = np.array([[60, .8],
 #     ])
 #     return model
 
-def create_model(input_dim: int=50, output_dim: int=14):
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Input(shape=(input_dim,)),
-        tf.keras.layers.Dense(20, activation='relu'),
-        tf.keras.layers.Dense(20, activation='relu'),
-        tf.keras.layers.Dropout(0.05),
-        tf.keras.layers.Dense(output_dim)
-    ])
-    return model
-
 def main():
     # my_synth = synth.synth(synth.WaveType.SAW, 0.1, synth.WaveType.SINE, 0.5,
     #                  mix_pct=0.9,
@@ -55,23 +28,17 @@ def main():
     #                  lfo_1=[2, 0],
     #                  lfo_2=[10, 0]) # Sample parameters
 
-    my_synth = synth.synth(1, 0, 0.5, 0, 0,
-                            adsr=[0.1, 0.1, 0.5, 2],
-                            lfo_1=[2, 0],
-                            lfo_2=[10, 0])
+    my_synth = synth.synth()
     
     # Load the model
-    model = create_model()
-    loss_fn = tf.keras.losses.MeanSquaredError()
-    model.compile(#optimizer='adam',
-              loss=loss_fn,
-              metrics=['accuracy'])
     
-    if (os.path.isfile(config["weights_file_path"])):
-        model.load_weights(config["weights_file_path"])
-    else:
-        print(f"Could not find model at {config["weights_file_path"]}")
-        quit()
+    model = tf.keras.models.load_model("model_DECENT2.keras")
+    # model = False
+    # if (os.path.isfile(config["model_file_path"])):
+    #     model = tf.keras.models.load_model(config["model_file_path"])
+    # else:
+    #     print(f"Could not find model at {config["model_file_path"]}")
+    #     quit()
 
     words, vectors = get_vector_data()
 
@@ -90,7 +57,7 @@ def main():
         my_synth_params = model.predict(np.array([my_vector]))
         print(my_synth_params[0])
         my_synth.assign_params_from_array(my_synth_params[0])
-        my_sound = my_synth.render(notes)
+        my_sound = my_synth.render(melodies.church)
         #print(my_synth.as_json())
         sd.play(my_sound, sr)
         sd.wait()

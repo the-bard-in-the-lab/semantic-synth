@@ -195,7 +195,7 @@ class synth:
         
         self.adsr = [(np.random.random() ** config["adsr_skew_factor"]) * config["adsr_maximum"]["attack"],
                      (np.random.random() ** config["adsr_skew_factor"]) * config["adsr_maximum"]["decay"],
-                     config["adsr_minimum"]["sustain"] + (1 - config["adsr_maximum"]["sustain"]) * np.random.random() * config["adsr_maximum"]["sustain"],
+                     config["adsr_minimum"]["sustain"] + (1 - config["adsr_minimum"]["sustain"]) * np.random.random() * config["adsr_maximum"]["sustain"],
                      (config["adsr_minimum"]["release"] + (1 - config["adsr_minimum"]["release"]) * (np.random.random() ** config["adsr_skew_factor"])) * config["adsr_maximum"]["release"]]
         self.lfo_1_freq = np.random.random() * config["lfo_maximum"]["freq"]
         self.lfo_1_depth = (np.random.random() ** config["lfo_skew_factor"]) * config["lfo_maximum"]["depth"]
@@ -241,11 +241,13 @@ class synth:
         # self.lfo_1_depth = abs(arr[16])
         # self.lfo_2_freq = abs(arr[17])
         # self.lfo_2_depth = abs(arr[18])
-
-        self.osc_1_mix = arr[0] if arr[0] >= 0 and arr[0] <= 1 else 1
-        self.osc_2_mix = arr[1] if arr[1] >= 0 and arr[1] <= 1 else 0
-        self.osc_3_mix = arr[2] if arr[2] >= 0 and arr[2] <= 1 else 0
-        self.osc_4_mix = arr[3] if arr[3] >= 0 and arr[3] <= 1 else 0
+        oscillators = arr[0:4]
+        # Normalize oscillator mix between 0 and 1
+        oscillators = (oscillators - np.min(oscillators)) / np.ptp(oscillators)
+        self.osc_1_mix = oscillators[0]
+        self.osc_2_mix = oscillators[1]
+        self.osc_3_mix = oscillators[2]
+        self.osc_4_mix = oscillators[3]
         self.osc_2_sqpct = arr[4]
         self.adsr = np.abs(arr[5:9])
         self.lfo_1_freq = abs(arr[10])

@@ -1,5 +1,5 @@
-#corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data.txt"
-corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data_GroundTruth.txt"
+corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data.txt"
+#corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data_GroundTruth.txt"
 vector_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/vectors.txt" 
 #vector_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/wiki_giga_2024_100_MFT20_vectors_seed_2024_alpha_0.75_eta_0.05.050_combined.txt"
 weights_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/model_weights.weights.h5"
@@ -7,17 +7,20 @@ model_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/model.
 audio_settings:
   sample_rate: 44100
 adsr_minimum:
-  sustain: 0.2
+  sustain: 0
   release: 0.01
 adsr_maximum:
   attack: 1
   decay: 1
-  sustain: 1 # Should never be higher than 1
+  sustain: 0.8 #1 # Should never be higher than 1
   release: 3
 lfo_maximum:
   freq: 20
   depth: 5
-adsr_skew_factor: 2.5
+adsr_skew_factor: 1 #2.5
 lfo_skew_factor: 15
 osc_skew_factor: 3 # Go below 1 at your own risk
 k: 3
+training_parameters:
+  batch_size: 1
+  epochs: 5

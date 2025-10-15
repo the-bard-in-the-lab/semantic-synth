@@ -18,4 +18,4 @@ A promptable synthesizer powered by [GloVe](https://nlp.stanford.edu/projects/gl
     - Uninstall `portaudio` and `sounddevice`.
     - Install `portaudio` *first*.
     - Install `sounddevice`.
-    
+- If you get an

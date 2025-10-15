@@ -10,15 +10,17 @@ from vector.vmath import get_k_nearest_neighbors
 
 config = yaml.safe_load(open("config.yaml"))
 k = config["k"]
+my_num_epochs = config["training_parameters"]["epochs"]
+my_batch_size = config["training_parameters"]["batch_size"]
 
 type_dict = {"SINE":0, "SQUARE":1, "SAW":2, "NOISE":3}
 
 def create_model(input_dim: int=50, output_dim: int=14):
     model = tf.keras.models.Sequential([
         tf.keras.layers.Input(shape=(input_dim,)),
+        tf.keras.layers.Dense(35, activation='relu'),
         tf.keras.layers.Dense(20, activation='relu'),
-        tf.keras.layers.Dense(20, activation='relu'),
-        tf.keras.layers.Dropout(0.05),
+        tf.keras.layers.Dropout(0),
         tf.keras.layers.Dense(output_dim)
     ])
     return model
@@ -95,25 +97,21 @@ def main():
     #print(words)
     print(vectors)
 
-
     # Tensorflow model setup
-    model = create_model()
+    model = create_model(input_dim=np.shape(vectors)[1])
     loss_fn = tf.keras.losses.MeanSquaredError()
     model.compile(optimizer='adam',
               loss=loss_fn,
               metrics=['accuracy'])
     
-    if (os.path.isfile(config["weights_file_path"])):
-        model.load_weights(config["weights_file_path"])
+    # if (os.path.isfile(config["weights_file_path"])):
+    #     model.load_weights(config["weights_file_path"])
 
     training_data, training_labels = load_training_data(words, vectors)
-    model.fit(training_data, training_labels, epochs=15)
+    model.fit(training_data, training_labels, epochs=my_num_epochs, batch_size=my_batch_size)
 
-    model.save_weights(config["weights_file_path"])
+    # model.save_weights(config["weights_file_path"])
     model.save(config["model_file_path"])
-
-
-    
 
 if __name__ == "__main__":
     main()

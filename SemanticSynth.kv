@@ -1,0 +1,179 @@
+#:kivy 1.0
+#:import interface_functions interface_functions
+
+BoxLayout:
+    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Sine volume'
+            Slider:
+                id: sin
+                min: 0
+                max: 100
+                step: 1
+                orientation: 'horizontal'
+
+            Label:
+                text: str(sin.value)
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Saw volume'
+            Slider:
+                id: saw
+                min: 0
+                max: 100
+                step: 1
+                orientation: 'horizontal'
+
+            Label:
+                text: str(saw.value)
+
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Square volume'
+            Slider:
+                id: sq
+                min: 0
+                max: 100
+                step: 1
+                orientation: 'horizontal'
+
+            Label:
+                text: str(sq.value)
+        
+            
+            Label:
+                text: 'Square Percent'
+            Slider:
+                id: sqpct
+                min: 0
+                max: 100
+                step: 1
+                orientation: 'horizontal'
+
+            Label:
+                text: str(sqpct.value)
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: 'Noise volume'
+            Slider:
+                id: noise
+                min: 0
+                max: 100
+                step: 1
+                orientation: 'horizontal'
+
+            Label:
+                text: str(noise.value)
+        
+            
+            Label:
+                text: 'ADSR'
+            BoxLayout:
+                orientation: 'horizontal'
+                Slider:
+                    id: a
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'vertical'
+                Slider:
+                    id: d
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'vertical'
+                Slider:
+                    id: s
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'vertical'
+                Slider:
+                    id: r
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    text: 'Tremolo Rate'
+                Slider:
+                    id: trem_rate
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    text: 'Tremolo Depth'
+                Slider:
+                    id: trem_depth
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    text: 'Vibrato Rate'
+                Slider:
+                    id: vib_rate
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    text: 'Vibrato Depth'
+                Slider:
+                    id: vib_depth
+                    min: 0
+                    max: 100
+                    step: 1
+                    orientation: 'horizontal'
+
+    BoxLayout:
+        orientation: 'horizontal'
+        Button:
+            text: 'Play sound'
+            on_release: interface_functions.play_sound(sqpct.value)
+        Button:
+            text: 'Save sound'
+            on_release: Factory.SaveModal().open()
+
+
+#:import Factory kivy.factory.Factory
+<SaveModal@Popup>:
+    title: 'Save sound'
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'What should we call this sound?'
+        TextInput:
+            id: sound_name
+        Button:
+            text: 'Submit'
+            on_release: root.dismiss()
+
+            

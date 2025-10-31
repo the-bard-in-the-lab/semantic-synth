@@ -2,3 +2,4 @@ numpy
 tensorflow
 portaudio
 python-sounddevice
+kivy

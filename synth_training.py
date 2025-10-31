@@ -2,28 +2,11 @@ import numpy as np
 import sounddevice as sd
 import yaml
 import synthesizer.synthesizer_4osc as synth
+import melodies
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]
 filepath = config["corpus_file_path"]
-
-notes = np.array([[60, .8],
-                  [67, .8],
-                  [65, .2],
-                  [64, .2],
-                  [62, .2],
-                  [64, .2],
-                  [60, .8],
-                  [55, 1.6],
-                  [57, .8],
-                  [69, .8],
-                  [67, .2],
-                  [66, .2],
-                  [64, .2],
-                  [66, .2],
-                  [62, .8],
-                  [71, 1.6],
-                  ])
 
 def main():
     # my_modulator = sine(2, 3.0, 1)
@@ -39,7 +22,7 @@ def main():
     # Build the model
     while True:
         my_synth.randomize_params()
-        my_sound = my_synth.render(notes)
+        my_sound = my_synth.render(melodies.space01)
         #print(my_synth.as_json())
         sd.play(my_sound, sr)
         sd.wait()

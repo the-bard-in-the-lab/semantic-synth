@@ -57,7 +57,7 @@ def main():
         my_synth_params = model.predict(np.array([my_vector]))
         print(my_synth_params[0])
         my_synth.assign_params_from_array(my_synth_params[0])
-        my_sound = my_synth.render(melodies.church)
+        my_sound = my_synth.render(melodies.space01)
         #print(my_synth.as_json())
         sd.play(my_sound, sr)
         sd.wait()

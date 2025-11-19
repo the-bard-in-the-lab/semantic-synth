@@ -1,6 +1,5 @@
 #:kivy 1.0
-
-BoxLayout:
+<SemanticSynthInterface>:
     orientation: 'vertical'
     BoxLayout:
         orientation: 'horizontal'
@@ -84,8 +83,7 @@ BoxLayout:
 
             Label:
                 text: str(noise.value)
-        
-            
+    
             Label:
                 text: 'ADSR'
             BoxLayout:
@@ -178,43 +176,46 @@ BoxLayout:
                     on_touch_move: app.my_synth.lfo_1_depth = self.value
 
     BoxLayout:
-        orientation: 'horizontal'
-        Button:
-            text: 'Play sound'
-            on_release: app.play_sound([sin.value, sq.value, sqpct.value, saw.value, noise.value, [a.value, d.value, s.value, r.value], trem_rate.value, trem_depth.value, vib_rate.value, vib_depth.value])
-        Button:
-            text: 'Load sound'
-            on_release: Factory.LoadModal().open()
-        Button:
-            text: 'Save sound'
-            on_release: Factory.SaveModal().open()
-
-
-#:import Factory kivy.factory.Factory
-<SaveModal@Popup>:
-    title: 'Save sound'
-    auto_dismiss: False
-    BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'What should we call this sound?'
         TextInput:
             id: sound_name
-        Button:
-            text: 'Submit'
-            on_release: app.save_sound(sound_name.text)
-            on_release: root.dismiss()
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                text: 'Play sound'
+                on_release: app.play_sound([sin.value, sq.value, sqpct.value, saw.value, noise.value, [a.value, d.value, s.value, r.value], vib_rate.value, vib_depth.value, trem_rate.value, trem_depth.value])
+            Button:
+                text: 'Load sound'
+                on_release: app.load_sound(sound_name.text)
+            Button:
+                text: 'Save sound'
+                on_release: app.save_sound(sound_name.text, [sin.value, sq.value, sqpct.value, saw.value, noise.value, [a.value, d.value, s.value, r.value], vib_rate.value, vib_depth.value, trem_rate.value, trem_depth.value])
 
-<LoadModal@Popup>:
-    title: 'Load sound'
-    auto_dismiss: False
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: 'What sound do you want to load?'
-        TextInput:
-            id: sound_name2
-        Button:
-            text: 'Submit'
-            on_release: app.load_sound(sound_name2.text)
-            on_release: root.dismiss()
+
+
+#     title: 'Save sound'
+#     auto_dismiss: False
+#     BoxLayout:
+#         orientation: 'vertical'
+#         Label:
+#             text: 'What should we call this sound?'
+#         TextInput:
+#             id: sound_name
+#         Button:
+#             text: 'Submit'
+#             on_release: app.save_sound(sound_name.text)
+#             on_release: root.dismiss()
+
+# <LoadModal@Popup>:
+#     title: 'Load sound'
+#     auto_dismiss: False
+#     BoxLayout:
+#         orientation: 'vertical'
+#         Label:
+#             text: 'What sound do you want to load?'
+#         TextInput:
+#             id: sound_name2
+#         Button:
+#             text: 'Submit'
+#             on_release: app.load_sound(sound_name2.text, vib_rate.value)
+#             on_release: root.dismiss()

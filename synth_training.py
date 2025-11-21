@@ -2,7 +2,7 @@ import numpy as np
 import sounddevice as sd
 import yaml
 import synthesizer.synthesizer_4osc as synth
-import melodies
+import synthesizer.melodies as melodies
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]

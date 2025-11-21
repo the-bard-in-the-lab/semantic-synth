@@ -5,11 +5,11 @@ from vector.vmath import get_vector_data
 import sounddevice as sd
 import yaml
 import synthesizer.synthesizer_4osc as synth
-import melodies
+import synthesizer.melodies as melodies
 import json
 
 import os
-# os.environ["KIVY_NO_CONSOLELOG"] = "1"
+os.environ["KIVY_NO_CONSOLELOG"] = "1"
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 

@@ -4,7 +4,7 @@ import yaml
 import tensorflow as tf
 import synthesizer.synthesizer_4osc as synth
 from vector.vmath import get_vector_data
-import melodies
+import synthesizer.melodies as melodies
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]

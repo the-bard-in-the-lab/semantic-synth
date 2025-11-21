@@ -3,7 +3,6 @@ import sounddevice as sd
 import yaml
 import tensorflow as tf
 import synthesizer.synthesizer_4osc as synth
-import os
 from vector.vmath import get_vector_data
 import melodies
 

@@ -2,13 +2,11 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 
-import numpy as np
 import sounddevice as sd
 import yaml
 import synthesizer.synthesizer_4osc as synth
 import melodies
 import json
-from concurrent.futures import ThreadPoolExecutor
 
 config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]
@@ -52,6 +50,20 @@ class SemanticSynthApp(App):
         self.my_synth.lfo_2_freq = params[8]
         self.my_synth.lfo_2_depth = params[9]
         
+    def update_synth_from_widgets(self):
+        self.my_synth.osc_1_mix = self.root.ids["sin"].value
+        self.my_synth.osc_2_mix = self.root.ids["sq"].value
+        self.my_synth.osc_2_sqpct = self.root.ids["sqpct"].value
+        self.my_synth.osc_3_mix = self.root.ids["saw"].value
+        self.my_synth.osc_4_mix = self.root.ids["noise"].value
+        self.my_synth.adsr[0] = self.root.ids["a"].value
+        self.my_synth.adsr[1] = self.root.ids["d"].value
+        self.my_synth.adsr[2] = self.root.ids["s"].value
+        self.my_synth.adsr[3] = self.root.ids["r"].value
+        self.my_synth.lfo_1_freq = self.root.ids["vib_rate"].value
+        self.my_synth.lfo_1_depth = self.root.ids["vib_depth"].value
+        self.my_synth.lfo_2_freq = self.root.ids["trem_rate"].value
+        self.my_synth.lfo_2_depth = self.root.ids["trem_depth"].value
 
     def play_sound(self, params):
         self.update_synth(params)
@@ -64,9 +76,19 @@ class SemanticSynthApp(App):
     def save_sound(self, name, params):
         self.update_synth(params)
         print(self.my_synth.as_json())
-        print(self.root.ids["sound_name"].text)
-        self.root.ids["sound_name"].text = ""
+        # print(self.root.ids["sound_name"].text)
+        # self.root.ids["sound_name"].text = ""
         
+        self.commit(name)
+        
+
+    def save_sound(self, name):
+        self.update_synth_from_widgets()
+        print(self.my_synth.as_json())
+        
+        self.commit(name)
+    
+    def commit(self, name):
         with open(filepath, 'a') as file1:
             file1.writelines(self.my_synth.as_json() + "|" + name.strip() + "\n")
             print(f"Saved sound as {name}!")

@@ -118,10 +118,10 @@ class SemanticSynthApp(App):
             mydata = ""
             for row in data:
                 split = row.strip().split("|")
-                print(split[1])
+                #print(split[1])
                 if split[1] == name:
                     mydata = split[0]
-                    print("Found it!")
+                    #print("Found it!")
                     break
             if mydata == "":
                 print(f"Could not locate a sound called {name}.")

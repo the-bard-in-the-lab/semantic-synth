@@ -30,26 +30,61 @@ def get_vector_data():
 
         return words, vectors
 
+def get_vector_data_from_names(names, words, vectors):
+    # names is a list
+    name_vectors = []
+    for name in names:
+        try:
+            name_vectors.append(vectors[words.index(name)])
+        except:
+            print(f"Key {name} does not appear in the vector data")
+            raise KeyError("Key does not appear in the vector data")
+    return name_vectors
+
 def get_k_nearest_neighbors(key: np.array, forest: np.array, k: int):
     # Key is the vector we're looking for
     # Forest is the array of vectors we're searching through
-
+    forest = np.array(forest)
     # Debug:
     # print(f"Key shape: {np.shape(key)}")
     # print(f"Forest shape: {np.shape(forest)}")
 
     # Compute cosine distance
     #dist = np.apply_along_axis(lambda x : abs(distance.cosine(x, key)), 1, forest)
-    dist = 1 - (key.dot(forest.T) / np.linalg.norm(forest, axis=1)) 
-
+    epsilon = 0.0000001
+    norms = np.linalg.norm(forest, axis=1)
+    norms[np.abs(norms) < epsilon] = epsilon # Prevents divide-by-zero errors
+    # print("norms:")
+    # print(norms)
+    # print("forest:")
+    # print(forest.T)
+    # print("dot:")
+    # print(key.dot(forest.T))
+    dist = 1 - (key.dot(forest.T) / norms)
+    
+    # print("We successfully computed cosine distance")
+    # print(dist)
+    
     # We can be sneaky and skip including the key norm because it's
     # a constant. We don't care about the actual values, only the order.
 
     # Partition by size, then take the first k only
     inds = np.argpartition(dist, k)[:k]
     
+    # print("We successfully partitioned by size")
+    # print(inds)
+
     # List comprehension because it's fun :)
     return [forest[j] for j in inds]
+
+def cosine_distance(a, b):
+    a = np.array(a)
+    b = np.array(b)
+    dot = a.dot(b)
+    size = np.linalg.norm(a) * np.linalg.norm(b) # Here I care enough to include both
+    dist = 1 - (dot / size)
+
+    return dist
 
 if __name__ == "__main__":
     # Demo

@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from vector.vmath import get_vector_data
+import vector.vmath as vmath
 
 import sounddevice as sd
 import yaml
@@ -18,7 +18,7 @@ sr = config["audio_settings"]["sample_rate"]
 filepath = config["corpus_file_path"]
 #model = tf.keras.models.load_model(config["model_file_path"])
 model = tf.keras.models.load_model("model_DECENT2.keras")
-words, vectors = get_vector_data()
+words, vectors = vmath.get_vector_data()
 
 class SemanticSynthApp(App):
     # (See .kv file)
@@ -136,8 +136,8 @@ class SemanticSynthApp(App):
             self.update_widgets_from_synth()
             
             sd.play(my_sound, sr)
-            
-    def predict_sound(self, name):
+
+    def predict_sound_neural(self, name):
         ind = -1
         try:
             ind = words.index(name)
@@ -152,6 +152,93 @@ class SemanticSynthApp(App):
         self.update_widgets_from_synth()
         my_sound = self.my_synth.render(melodies.space01_short)
         sd.play(my_sound, sr)
+
+    def predict_sound_knn(self, name):
+        # First, get the vectors associated with the saved synth configurations
+        synths = []
+        synthwords = []
+        print("Loading synth data . . .")
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+            for line in range(len(lines)):
+                line_split = lines[line].split("|")
+                synths.append(line_split[0])
+                synthwords.append(line_split[1].strip())
+        
+        print("Getting word vectors for synth data (This needs to be optimized) . . .")
+        word_vectors = vmath.get_vector_data_from_names(synthwords, words, vectors)
+        
+        # Check if vector in dataset. If yes, return configuration.
+        print("Checking against corpus for exact match . . .")
+        if name in synthwords:
+            print(f"Found sound {name} in corpus!")
+
+            dict = json.loads(synths[synthwords.index(name)])
+            self.update_synth([dict["osc_1_mix"], dict["osc_2_mix"], dict["osc_2_sqpct"], dict["osc_3_mix"], dict["osc_4_mix"], dict["adsr"], dict["lfo_1_freq"], dict["lfo_1_depth"], dict["lfo_2_freq"], dict["lfo_2_depth"]])
+            self.update_widgets_from_synth()
+            my_sound = self.my_synth.render(melodies.space01_short)
+            sd.play(my_sound, sr)
+            return
+
+        # Then, find the k nearest vectors AMONG THOSE SAVED CONFIGURATIONS
+        print("Running KNN search . . .")
+        print(f"Key: {name}")
+        # print(f"Key vector: {vectors[words.index(name)]}")
+        # print(f"Forest: {word_vectors}")
+        print(f"k: {config["k"]}")
+        neighbors = vmath.get_k_nearest_neighbors(vectors[words.index(name)], word_vectors, config["k"])
+        neighbors_named = []
+        print("Neighbors:")
+        vlist = vectors.tolist()
+        for wordvec in neighbors:
+            print(words[vlist.index(wordvec.tolist())])
+            neighbors_named.append(words[vlist.index(wordvec.tolist())])
+
+        # Weighted average. Cosine distance means bigger is further away.
+        # - Get 1/cosine distance for each neighbor
+        # - Sum the reciprocal cosine distances
+        # - Multiply each set of params by fraction of rcd sum
+        # - Sum the params and return
+        distances = [float(vmath.cosine_distance(vectors[words.index(name)], k)) for k in neighbors]
+        inverses = [1/i for i in distances]
+        total = sum(inverses)
+        fracs = [i/total for i in inverses]
+        
+        param_dicts = [json.loads(synths[synthwords.index(neighbors_named[i])]) for i in range(len(neighbors_named))]
+        
+        # print(fracs)
+        # print(sum(fracs))
+        # print(param_dicts)
+        # print(len(param_dicts))
+        final_params = {}
+        for i in range(len(param_dicts)):
+            for key in param_dicts[i]:
+                #print(i, key)
+                if key == "adsr":
+                    for j in range(4):
+                        param_dicts[i][key][j] *= fracs[i]
+                    if key in final_params:
+                        for j in range(4):
+                            final_params[key][j] += param_dicts[i][key][j]
+                    else:
+                        final_params[key] = param_dicts[i][key]
+                else:    
+                    param_dicts[i][key] *= fracs[i]
+                    if key in final_params:
+                        final_params[key] += param_dicts[i][key]
+                    else:
+                        final_params[key] = param_dicts[i][key]
+        #print(final_params)
+        dict = final_params
+        self.update_synth([dict["osc_1_mix"], dict["osc_2_mix"], dict["osc_2_sqpct"], dict["osc_3_mix"], dict["osc_4_mix"], dict["adsr"], dict["lfo_1_freq"], dict["lfo_1_depth"], dict["lfo_2_freq"], dict["lfo_2_depth"]])
+        self.update_widgets_from_synth()
+        my_sound = self.my_synth.render(melodies.space01_short)
+        sd.play(my_sound, sr)
+
+
+    def predict_sound(self, name):
+        #self.predict_sound_neural(name)
+        self.predict_sound_knn(name)
 
 class SemanticSynthInterface(BoxLayout):
     pass

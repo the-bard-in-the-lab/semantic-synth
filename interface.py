@@ -6,10 +6,12 @@ import sounddevice as sd
 import yaml
 import synthesizer.synthesizer_4osc as synth
 import synthesizer.melodies as melodies
+import semantic_association
 import json
 
 import os
-os.environ["KIVY_NO_CONSOLELOG"] = "1"
+# os.environ["KIVY_NO_CONSOLELOG"] = "1"
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 
@@ -17,7 +19,7 @@ config = yaml.safe_load(open("config.yaml"))
 sr = config["audio_settings"]["sample_rate"]
 filepath = config["corpus_file_path"]
 #model = tf.keras.models.load_model(config["model_file_path"])
-model = tf.keras.models.load_model("model_DECENT2.keras")
+model = semantic_association.get_trained_neural_net()
 words, vectors = vmath.get_vector_data()
 
 class SemanticSynthApp(App):
@@ -179,6 +181,9 @@ class SemanticSynthApp(App):
             my_sound = self.my_synth.render(melodies.space01_short)
             sd.play(my_sound, sr)
             return
+        if not (name in words):
+            print(f"{name} is not in the vector data!")
+            return
 
         # Then, find the k nearest vectors AMONG THOSE SAVED CONFIGURATIONS
         print("Running KNN search . . .")
@@ -186,6 +191,7 @@ class SemanticSynthApp(App):
         # print(f"Key vector: {vectors[words.index(name)]}")
         # print(f"Forest: {word_vectors}")
         print(f"k: {config["k"]}")
+        
         neighbors = vmath.get_k_nearest_neighbors(vectors[words.index(name)], word_vectors, config["k"])
         neighbors_named = []
         print("Neighbors:")
@@ -235,10 +241,10 @@ class SemanticSynthApp(App):
         my_sound = self.my_synth.render(melodies.space01_short)
         sd.play(my_sound, sr)
 
-
-    def predict_sound(self, name):
-        #self.predict_sound_neural(name)
-        self.predict_sound_knn(name)
+    # Generic predict_sound wrapper, assignable to either approach
+    # def predict_sound(self, name):
+    #     #self.predict_sound_neural(name)
+    #     #self.predict_sound_knn(name)
 
 class SemanticSynthInterface(BoxLayout):
     pass

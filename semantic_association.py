@@ -1,15 +1,17 @@
 import numpy as np
 import yaml
 import tensorflow as tf
-import os
 import json
 import re
 from vector.vmath import get_vector_data
 from vector.vmath import get_k_nearest_neighbors
 
+'''
+This file trains the neural model.
+'''
 
 config = yaml.safe_load(open("config.yaml"))
-k = config["k"]
+k = config["augmentation_factor"]
 my_num_epochs = config["training_parameters"]["epochs"]
 my_batch_size = config["training_parameters"]["batch_size"]
 
@@ -33,21 +35,9 @@ def load_training_data(vwords : np.array, vvectors : np.array):
         for line in range(len(lines)):
             line_split = lines[line].split("|")
             synth = json.loads(line_split[0])
-            #synth_arr = np.zeros([19,])
             synth_arr = np.zeros([14,])
 
             # Assign parameter values:
-            # synth_arr[type_dict[synth["osc_1"]]] = 1
-            # synth_arr[4] = synth["osc_1_sqpct"]
-            # synth_arr[type_dict[synth["osc_2"]] + 5] = 1
-            # synth_arr[9] = synth["osc_2_sqpct"]
-            # synth_arr[10] = synth["mix_pct"]
-            # synth_arr[11:15] = synth["adsr"][0:4]
-            # synth_arr[15] = synth["lfo_1_freq"]
-            # synth_arr[16] = synth["lfo_1_depth"]
-            # synth_arr[17] = synth["lfo_2_freq"]
-            # synth_arr[18] = synth["lfo_2_depth"]
-
             synth_arr[0] = synth["osc_1_mix"]
             synth_arr[1] = synth["osc_2_mix"]
             synth_arr[2] = synth["osc_3_mix"]
@@ -61,15 +51,9 @@ def load_training_data(vwords : np.array, vvectors : np.array):
 
             my_words = re.split(r"[,.;\s]", line_split[1].strip())
             my_words = [x for x in my_words if x != ""]
-            #vlist = vvectors.tolist()
-            #print(my_words)
             for word in my_words:
                 try:
                     ind = vwords.index(word)
-                    #print(ind)
-                    
-                    #words.append(vvectors[ind])
-                    #synths.append(synth_arr)
                     
                     # DATASET AUGMENTATION:
                     # We find the k nearest words in the dataset and
@@ -80,7 +64,6 @@ def load_training_data(vwords : np.array, vvectors : np.array):
                     for wordvector in neighbors:
                         words.append(wordvector)
                         synths.append(synth_arr)
-                        #print(vwords[vlist.index(wordvector.tolist())])
 
                 except:
                     print(f"Word {word} not found in vector corpus; skipping . . .")
@@ -91,6 +74,27 @@ def load_training_data(vwords : np.array, vvectors : np.array):
         print(synths[0])
         print(words[0])
         return np.array(words), np.array(synths)
+
+def get_trained_neural_net():
+    words, vectors = get_vector_data()
+    #print(words)
+    #print(vectors)
+
+    # Tensorflow model setup
+    model = create_model(input_dim=np.shape(vectors)[1])
+    loss_fn = tf.keras.losses.MeanSquaredError()
+    model.compile(optimizer='adam',
+              loss=loss_fn,
+              metrics=['accuracy'])
+    
+    # This loads models from an existing file
+    # if (os.path.isfile(config["weights_file_path"])):
+    #     model.load_weights(config["weights_file_path"])
+
+    training_data, training_labels = load_training_data(words, vectors)
+    model.fit(training_data, training_labels, epochs=my_num_epochs, batch_size=my_batch_size)
+
+    return model
 
 def main():
     words, vectors = get_vector_data()
@@ -104,13 +108,13 @@ def main():
               loss=loss_fn,
               metrics=['accuracy'])
     
+    # This loads models from an existing file
     # if (os.path.isfile(config["weights_file_path"])):
     #     model.load_weights(config["weights_file_path"])
 
     training_data, training_labels = load_training_data(words, vectors)
     model.fit(training_data, training_labels, epochs=my_num_epochs, batch_size=my_batch_size)
 
-    # model.save_weights(config["weights_file_path"])
     model.save(config["model_file_path"])
 
 if __name__ == "__main__":

@@ -1,9 +1,6 @@
-corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data.txt"
-#corpus_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/corpus_data_GroundTruth.txt"
-vector_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/vectors.txt" 
-#vector_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/wiki_giga_2024_100_MFT20_vectors_seed_2024_alpha_0.75_eta_0.05.050_combined.txt"
-weights_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/model_weights.weights.h5"
-model_file_path: "/Users/lazorch/Desktop/Software\ Projects/SemanticSynth/model.keras"
+corpus_file_path: "example_corpus_data.txt"
+vector_file_path: "vectors.txt" 
+model_file_path: "model.keras"
 audio_settings:
   sample_rate: 44100
 adsr_minimum:
@@ -20,7 +17,8 @@ lfo_maximum:
 adsr_skew_factor: 1 #2.5
 lfo_skew_factor: 15
 osc_skew_factor: 3 # Go below 1 at your own risk
-k: 5
+k: 5 # For KNN weighted average
+augmentation_factor: 1 # For neural data augmentation (minimum 1)
 training_parameters:
   batch_size: 1
   epochs: 20

@@ -183,6 +183,9 @@
             text: 'Load sound from corpus'
             on_release: Factory.LoadModal().open()
         Button:
+            text: 'Load sound from neighbors'
+            on_release: Factory.LoadNeighborsModal().open()
+        Button:
             text: 'Load sound from model'
             on_release: Factory.LoadModelModal().open()
         Button:
@@ -230,5 +233,19 @@
             id: sound_name3
         Button:
             text: 'Submit'
-            on_release: app.predict_sound(sound_name3.text)
+            on_release: app.predict_sound_neural(sound_name3.text)
+            on_release: root.dismiss()
+
+<LoadNeighborsModal@Popup>:
+    title: 'Load sound using nearest neighbors'
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'What sound do you want to predict?'
+        TextInput:
+            id: sound_name4
+        Button:
+            text: 'Submit'
+            on_release: app.predict_sound_knn(sound_name4.text)
             on_release: root.dismiss()
